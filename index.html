@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MobilityOS — Login</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00c6ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#030a12;
+  --surface:#0a1628;
+  --surface2:#0f1f3a;
+  --accent:#00c6ff;
+  --accent2:#7b2ff7;
+  --green:#00ff88;
+  --text:#e8f4fd;
+  --muted:#5a7a9a;
+  --border:#1a3a5c;
+  --danger:#ff4d6d;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+
+/* Animated background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 800px 600px at 20% 30%, rgba(0,198,255,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 80% 70%, rgba(123,47,247,.07) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+.grid-bg{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,198,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,198,255,.04) 1px, transparent 1px);
+  background-size:40px 40px;z-index:0;
+}
+
+.wrapper{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;padding:20px;
+}
+
+.login-panel{
+  background:rgba(10,22,40,.9);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:48px 44px;
+  width:100%;max-width:420px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 0 80px rgba(0,198,255,.08), 0 40px 80px rgba(0,0,0,.5);
+  position:relative;overflow:hidden;
+}
+.login-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
+}
+
+.logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:36px;justify-content:center;
+}
+.logo-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 0 20px rgba(0,198,255,.3);
+}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.logo-text span{color:var(--accent)}
+
+h2{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:6px;text-align:center}
+.subtitle{color:var(--muted);font-size:13px;text-align:center;margin-bottom:32px}
+
+.form-group{margin-bottom:20px}
+label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px}
+.input-wrap{position:relative}
+.input-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+input{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:13px 14px 13px 42px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;
+  transition:border .2s,box-shadow .2s;outline:none;
+}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,198,255,.12)}
+input::placeholder{color:var(--muted)}
+
+.remember{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:13px;color:var(--muted);cursor:pointer}
+.remember input[type=checkbox]{width:auto;padding:0;accent-color:var(--accent)}
+
+.btn{
+  width:100%;padding:14px;border:none;border-radius:10px;cursor:pointer;
+  font-size:15px;font-weight:600;font-family:'Space Grotesk',sans-serif;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;transition:all .2s;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,198,255,.25);
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,198,255,.35)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+.divider{display:flex;align-items:center;gap:12px;margin:24px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.demo-btn{
+  width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;
+  background:transparent;color:var(--muted);cursor:pointer;font-size:13px;
+  transition:all .2s;font-family:'Inter',sans-serif;
+}
+.demo-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,198,255,.05)}
+
+.error{
+  background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.3);
+  border-radius:8px;padding:10px 14px;font-size:13px;color:var(--danger);
+  margin-bottom:16px;display:none;
+}
+
+.badges{display:flex;gap:8px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.badge{font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+
+/* Particles */
+.particle{
+  position:fixed;border-radius:50%;pointer-events:none;z-index:0;
+  animation:float linear infinite;
+}
+@keyframes float{
+  0%{transform:translateY(100vh) translateX(0) scale(0);opacity:0}
+  10%{opacity:.5}
+  90%{opacity:.2}
+  100%{transform:translateY(-10vh) translateX(40px) scale(1);opacity:0}
+}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="wrapper">
+  <div class="login-panel">
+    <div class="logo">
+      <div class="logo-icon">🚌</div>
+      <div class="logo-text">Mobility<span>OS</span></div>
+    </div>
+    <h2 id="formTitle">Welcome Back</h2>
+    <p class="subtitle" id="formSubtitle">Tamil Nadu's AI Mobility Platform</p>
+
+    <div class="error" id="errorBox"></div>
+
+    <div class="form-group" id="nameGroup" style="display:none;">
+      <label>Full Name</label>
+      <div class="input-wrap">
+        <span class="icon">👤</span>
+        <input type="text" id="name" placeholder="John Doe" autocomplete="name"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <div class="input-wrap">
+        <span class="icon">✉️</span>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap">
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+    </div>
+    <div class="form-group" id="roleGroup">
+      <label>Choose Role</label>
+      <div class="input-wrap">
+        <span class="icon">💼</span>
+        <select id="role" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px 14px 13px 42px; font-size:14px; color:var(--text); outline:none; appearance:none;">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <label class="remember">
+      <input type="checkbox" id="remember"/> Remember me for 30 days
+    </label>
+
+    <button class="btn" id="loginBtn" onclick="handleFormSubmit()">Sign In to MobilityOS</button>
+
+    <div style="text-align:center; margin-top:20px; font-size:13px;">
+      <a href="#" id="toggleLink" style="color:var(--accent); text-decoration:none;" onclick="toggleForm(event)">Need an account? Sign Up</a>
+    </div>
+
+    <div class="divider">or use demo account</div>
+    <button class="demo-btn" onclick="fillDemo()">🎯 Fill Demo Credentials</button>
+
+    <div class="badges">
+      <span class="badge">🛡️ IS:2490 Compliant</span>
+      <span class="badge">🌿 Carbon Tracked</span>
+      <span class="badge">🗺️ Tamil Nadu Only</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let isSignupState = false;
+
+function fillDemo(){
+  document.getElementById('email').value='demo@mobilityos.in';
+  document.getElementById('password').value='demo1234';
+  if(isSignupState) toggleForm();
+}
+
+function toggleForm(e) {
+  if (e) e.preventDefault();
+  isSignupState = !isSignupState;
+  
+  const formTitle = document.getElementById('formTitle');
+  const formSubtitle = document.getElementById('formSubtitle');
+  const nameGroup = document.getElementById('nameGroup');
+  const loginBtn = document.getElementById('loginBtn');
+  const toggleLink = document.getElementById('toggleLink');
+  const errorBox = document.getElementById('errorBox');
+  const rememberLabel = document.querySelector('.remember');
+  const demoDivider = document.querySelector('.divider');
+  const demoBtn = document.querySelector('.demo-btn');
+  
+  errorBox.style.display = 'none';
+  errorBox.style.background = 'rgba(255,77,109,.12)';
+  errorBox.style.borderColor = 'rgba(255,77,109,.3)';
+  errorBox.style.color = 'var(--danger)';
+  
+  if (isSignupState) {
+    formTitle.textContent = 'Create Account';
+    formSubtitle.textContent = 'Sign up to start planning safe, green travel in TN';
+    nameGroup.style.display = 'block';
+    loginBtn.textContent = 'Register Account';
+    toggleLink.textContent = 'Already have an account? Sign In';
+    rememberLabel.style.display = 'none';
+    demoDivider.style.display = 'none';
+    demoBtn.style.display = 'none';
+  } else {
+    formTitle.textContent = 'Welcome Back';
+    formSubtitle.textContent = "Tamil Nadu's AI Mobility Platform";
+    nameGroup.style.display = 'none';
+    loginBtn.textContent = 'Sign In to MobilityOS';
+    toggleLink.textContent = 'Need an account? Sign Up';
+    rememberLabel.style.display = 'flex';
+    demoDivider.style.display = 'flex';
+    demoBtn.style.display = 'block';
+  }
+}
+
+async function handleFormSubmit() {
+  if (isSignupState) {
+    await doSignUp();
+  } else {
+    await doLogin();
+  }
+}
+
+async function doSignUp() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  const selectedRole = document.getElementById('role').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('errorBox');
+  err.style.display = 'none';
+  
+  if (!name || !email || !pass) {
+    showErr('Please fill in all fields');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Creating account…';
+  
+  try {
+    const r = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, email, password: pass, role: selectedRole })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'Registration failed');
+    
+    // Auto switch to login
+    toggleForm();
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = pass;
+    showErr('Account created successfully! Please sign in.');
+    err.style.background = 'rgba(0, 255, 136, 0.12)';
+    err.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+    err.style.color = 'var(--green)';
+  } catch (e) {
+    showErr(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = isSignupState ? 'Register Account' : 'Sign In to MobilityOS';
+  }
+}
+
+async function doLogin(){
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('password').value;
+  const selectedRole = document.getElementById('role').value;
+  const btn=document.getElementById('loginBtn');
+  const err=document.getElementById('errorBox');
+  err.style.display='none';
+  err.style.background = 'rgba(255,77,109,.12)';
+  err.style.borderColor = 'rgba(255,77,109,.3)';
+  err.style.color = 'var(--danger)';
+  if(!email||!pass){showErr('Please fill in all fields');return}
+  btn.disabled=true;btn.textContent='Signing in…';
+  try{
+    const r=await fetch('/api/login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass})
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.detail||'Login failed');
+    if(d.role !== selectedRole) {
+      throw new Error(`Unauthorized: Your account does not have the '${selectedRole}' role.`);
+    }
+    sessionStorage.setItem('mos_token',d.token);
+    sessionStorage.setItem('mos_name',d.name);
+    sessionStorage.setItem('mos_email',d.email);
+    sessionStorage.setItem('mos_role',d.role);
+    
+    if (d.role === 'admin') {
+      window.location.href = '/admin.html';
+    } else {
+      window.location.href = '/dashboard.html';
+    }
+  }catch(e){showErr(e.message);btn.disabled=false;btn.textContent='Sign In to MobilityOS';}
+}
+function showErr(msg){
+  const e=document.getElementById('errorBox');
+  e.textContent='⚠️ '+msg;e.style.display='block';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')handleFormSubmit()});
+
+// Generate floating particles
+for(let i=0;i<18;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  const size=Math.random()*4+2;
+  p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;
+    background:${Math.random()>.5?'rgba(0,198,255,.4)':'rgba(123,47,247,.4)'};
+    animation-duration:${8+Math.random()*12}s;animation-delay:-${Math.random()*15}s`;
+  document.body.appendChild(p);
+}
+</script>
+</body>
+</html>
